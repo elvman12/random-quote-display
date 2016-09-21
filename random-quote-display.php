@@ -60,6 +60,6 @@ function rqd_deactivation()
 register_uninstall_hook(__FILE__, 'rqd_uninstall');
 
 function rqd_uninstall() {
-	// The uninstall does not have to be done here, you can create an uninstall.php file in your plugin directory that runs when a user clicks 'Delete' after deactivating the plugin.	
+// The uninstall does not have to be done here, you can create an uninstall.php file in your plugin directory that runs when a user clicks 'Delete' after deactivating the plugin.	
 }
 ?>
