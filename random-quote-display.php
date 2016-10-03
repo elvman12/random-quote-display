@@ -61,40 +61,76 @@ add_filter( 'enter_title_here', 'ctd_change_title_text' );
 
 // Add Custom Meta Box
 
-// MetaBox Markup, HTML, etc.
-function ctd_quote_author_meta_markup() {
-	
-    wp_nonce_field(basename(__FILE__), "ctd-quote-nonce");
+// Meta Box Markup for the HTML and some CSS
+function custom_meta_box_markup($object)
+{
+    wp_nonce_field(basename(__FILE__), "meta-box-nonce");
 
     ?>
-    	<style>
-			h2.ui-sortable-handle span {
-				font-size: 20px;
-				font-weight: 400;
-				margin: 0;
-				padding: 9px 15px 4px 0;
-				line-height: 29px;
-			}
-		</style>
-        
-    	<div>
-            <label for="author-credit">Quote Credit</label>
-            <input name="author-credit" type="text" value="<?php echo get_post_meta($object->ID, "author-credit", true); ?>">
-        </div>    
-<?php            
+        <div>
+            <label for="meta-box-text">Quote Credit</label>
+            <input name="meta-box-text" type="text" value="<?php echo get_post_meta($object->ID, "meta-box-text", true); ?>">
+
+            <br>
+
+            <label for="meta-box-dropdown">Dropdown</label>
+            <select name="meta-box-dropdown">
+                <?php 
+                    $option_values = array(1, 2, 3);
+
+                    foreach($option_values as $key => $value) 
+                    {
+                        if($value == get_post_meta($object->ID, "meta-box-dropdown", true))
+                        {
+                            ?>
+                                <option selected><?php echo $value; ?></option>
+                            <?php    
+                        }
+                        else
+                        {
+                            ?>
+                                <option><?php echo $value; ?></option>
+                            <?php
+                        }
+                    }
+                ?>
+            </select>
+
+            <br>
+
+            <label for="meta-box-checkbox">Check Box</label>
+            <?php
+                $checkbox_value = get_post_meta($object->ID, "meta-box-checkbox", true);
+
+                if($checkbox_value == "")
+                {
+                    ?>
+                        <input name="meta-box-checkbox" type="checkbox" value="true">
+                    <?php
+                }
+                else if($checkbox_value == "true")
+                {
+                    ?>  
+                        <input name="meta-box-checkbox" type="checkbox" value="true" checked>
+                    <?php
+                }
+            ?>
+        </div>
+    <?php  
 }
 
-// Meta Box - this adds the meta box itself
-function ctd_quote_author_metabox() {
-    add_meta_box("demo-meta-box", "Quote Author", "ctd_quote_author_meta_markup", "quote", "normal", "high", null);
-}
-
-add_action("add_meta_boxes", "ctd_quote_author_metabox");
-
-// Meta Box - Save the input to dbase so we can use it and display it
-function ctd_save_custom_quota_meta($post_id, $quote, $update)
+// Add the Box Itself
+function add_custom_meta_box()
 {
-    if (!isset($_POST["ctd-quote-nonce"]) || !wp_verify_nonce($_POST["ctd-quote-nonce"], basename(__FILE__)))
+    add_meta_box("demo-meta-box", "Custom Meta Box", "custom_meta_box_markup", "quote", "side", "high", null);
+}
+
+add_action("add_meta_boxes", "add_custom_meta_box");
+
+// Add Data to Dbase
+function save_custom_meta_box($post_id, $post, $update)
+{
+    if (!isset($_POST["meta-box-nonce"]) || !wp_verify_nonce($_POST["meta-box-nonce"], basename(__FILE__)))
         return $post_id;
 
     if(!current_user_can("edit_post", $post_id))
@@ -103,32 +139,32 @@ function ctd_save_custom_quota_meta($post_id, $quote, $update)
     if(defined("DOING_AUTOSAVE") && DOING_AUTOSAVE)
         return $post_id;
 
-    $slug = "quote";
+    $slug = "post";
     if($slug != $post->post_type)
         return $post_id;
 
     $meta_box_text_value = "";
-    //$meta_box_dropdown_value = "";
-    //$meta_box_checkbox_value = "";
+    $meta_box_dropdown_value = "";
+    $meta_box_checkbox_value = "";
 
-    if(isset($_POST["author-credit"]))
+    if(isset($_POST["meta-box-text"]))
     {
-        $meta_box_text_value = $_POST["author-credit"];
+        $meta_box_text_value = $_POST["meta-box-text"];
     }   
-    update_post_meta($post_id, "author-credit", $meta_box_text_value);
+    update_post_meta($post_id, "meta-box-text", $meta_box_text_value);
 
-    //if(isset($_POST["meta-box-dropdown"]))
-    //{
-        //$meta_box_dropdown_value = $_POST["meta-box-dropdown"];
-    //}   
-    //update_post_meta($post_id, "meta-box-dropdown", $meta_box_dropdown_value);
+    if(isset($_POST["meta-box-dropdown"]))
+    {
+        $meta_box_dropdown_value = $_POST["meta-box-dropdown"];
+    }   
+    update_post_meta($post_id, "meta-box-dropdown", $meta_box_dropdown_value);
 
-    //if(isset($_POST["meta-box-checkbox"]))
-    //{
-        //$meta_box_checkbox_value = $_POST["meta-box-checkbox"];
-    //}   
-    //update_post_meta($post_id, "meta-box-checkbox", $meta_box_checkbox_value);
+    if(isset($_POST["meta-box-checkbox"]))
+    {
+        $meta_box_checkbox_value = $_POST["meta-box-checkbox"];
+    }   
+    update_post_meta($post_id, "meta-box-checkbox", $meta_box_checkbox_value);
 }
 
-add_action("save_post", "ctd_save_custom_quota_meta", 10, 3);
+add_action("save_post", "save_custom_meta_box", 10, 3);
 ?>
