@@ -34,12 +34,14 @@ function ctd_famous_quotes() {
 		'hierarchical' => false,
 		'labels' => $labels,
 		'publicly_queryable' => false,
+		'exclude_from_search' => true,
 		'rewrite' => array( 'slug' => 'quote' ),
 		'menu_position' => 5,
 		'show_ui' => true,
 		'show_in_admin_bar' => true,
 		'menu_icon' => 'dashicons-format-quote',
-		'supports' => array ( 'title' )
+		//'supports' => array ( 'title' )
+		'supports' => false // This line removes the default metaboxes for Title and Editor fields
 	);
 	
 	register_post_type( 'quote', $args );
