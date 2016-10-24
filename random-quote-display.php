@@ -61,7 +61,7 @@ function ctd_change_title_text( $title ){
  
 add_filter( 'enter_title_here', 'ctd_change_title_text' );
 
-// Adding some js to the plugin
+// Adding some js to the plugin, the right way!!!
 function wpse_cpt_enqueue( $hook_suffix ){
     $cpt = 'quote';
 
@@ -69,10 +69,8 @@ function wpse_cpt_enqueue( $hook_suffix ){
         $screen = get_current_screen();
 
         if( is_object( $screen ) && $cpt == $screen->post_type ){
-
             // Register, enqueue scripts and styles here
 			wp_enqueue_script(  'myscript', plugins_url('random-quote-display/js/custom.js') );
-
         }
     }
 }
