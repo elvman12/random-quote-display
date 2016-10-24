@@ -40,8 +40,8 @@ function ctd_famous_quotes() {
 		'show_ui' => true,
 		'show_in_admin_bar' => true,
 		'menu_icon' => 'dashicons-format-quote',
-		//'supports' => array ( 'title' )
-		'supports' => false // This line removes the default metaboxes for Title and Editor fields
+		'supports' => array ( 'title', 'editor' )
+		//'supports' => false // This line removes the default metaboxes for Title and Editor fields
 	);
 	
 	register_post_type( 'quote', $args );
@@ -53,7 +53,7 @@ function ctd_change_title_text( $title ){
      $screen = get_current_screen();
  
      if  ( 'quote' == $screen->post_type ) {
-          $title = 'Enter a Famous Quote';
+          $title = 'Quote author name goes here';
      }
  
      return $title;
@@ -61,20 +61,17 @@ function ctd_change_title_text( $title ){
  
 add_filter( 'enter_title_here', 'ctd_change_title_text' );
 
-///////////////////////////////
-// Add Quote Credit (Author) //
-///////////////////////////////
-
-// HTML for the Metabox
-function ctd_author_credit_markup() {
-	
+// Adding some js to the plugin
+function ctd_quotes_loadscripts($hook) {
+ 
+	global $pw_settings_page;
+ 
+	// Load only on ?page=mypluginname
+        if ( 'edit-quote.php' != $hook ) 
+		return;
+ 
+	wp_enqueue_script( 'custom-js', plugins_url( 'js/custom.js' , dirname(__FILE__) ) );
 }
+add_action('admin_enqueue_scripts', 'ctd_quotes_loadscripts');
 
-// Add the Box Itself
-function ctd_author_credit_metabox()
-{
-    add_meta_box("ctd-author-credit-metabox", "Quote Credit (Author)", "ctd_author_credit_markup", "quote", "normal", "high", null);
-}
-
-add_action("add_meta_boxes", "ctd_author_credit_metabox");
 ?>
