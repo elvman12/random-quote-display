@@ -62,16 +62,20 @@ function ctd_change_title_text( $title ){
 add_filter( 'enter_title_here', 'ctd_change_title_text' );
 
 // Adding some js to the plugin
-function ctd_quotes_loadscripts($hook) {
- 
-	global $pw_settings_page;
- 
-	// Load only on ?page=mypluginname
-        if ( 'edit-quote.php' != $hook ) 
-		return;
- 
-	wp_enqueue_script( 'custom-js', plugins_url( 'js/custom.js' , dirname(__FILE__) ) );
-}
-add_action('admin_enqueue_scripts', 'ctd_quotes_loadscripts');
+function wpse_cpt_enqueue( $hook_suffix ){
+    $cpt = 'quote';
 
+    if( in_array($hook_suffix, array('post.php', 'post-new.php') ) ){
+        $screen = get_current_screen();
+
+        if( is_object( $screen ) && $cpt == $screen->post_type ){
+
+            // Register, enqueue scripts and styles here
+			wp_enqueue_script(  'myscript', plugins_url('random-quote-display/js/custom.js') );
+
+        }
+    }
+}
+
+add_action( 'admin_enqueue_scripts', 'wpse_cpt_enqueue');
 ?>
