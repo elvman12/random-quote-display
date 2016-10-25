@@ -40,8 +40,8 @@ function ctd_famous_quotes() {
 		'show_ui' => true,
 		'show_in_admin_bar' => true,
 		'menu_icon' => 'dashicons-format-quote',
-		'supports' => array ( 'title', 'editor' )
-		//'supports' => false // This line removes the default metaboxes for Title and Editor fields
+		//'supports' => array ( 'title', 'editor' )
+		'supports' => false // This line removes the default metaboxes for Title and Editor fields
 	);
 	
 	register_post_type( 'quote', $args );
@@ -57,11 +57,11 @@ function ctd_change_title_text( $title ){
      }
  
      return $title;
-}
- 
+} 
 add_filter( 'enter_title_here', 'ctd_change_title_text' );
 
-// Adding some js to the plugin, the right way!!!
+// Adding some jquery to the plugin, the right way!!!
+// All this code does is connect to the external js file contained in the plugin.
 function wpse_cpt_enqueue( $hook_suffix ){
     $cpt = 'quote';
 
@@ -76,4 +76,32 @@ function wpse_cpt_enqueue( $hook_suffix ){
 }
 
 add_action( 'admin_enqueue_scripts', 'wpse_cpt_enqueue');
+
+// Let's add some custom taxonomy stuff so we can have appropriate categories for the quotes we add.
+// We might use things like famous, strange, motivational, etc.
+
+
+// Here is where we add the Meta Boxes to add our custom fields and data.
+// As you can see each meta box requires a function that defines the HTML Markup, or what is contained in the meta box.
+function author_meta_box_markup() {
+    wp_nonce_field(basename(__FILE__), "meta-box-nonce");
+	?>
+    <div id="author-text">
+    <input name="meta-box-text" type="text" value="<?php echo get_post_meta($object->ID, "meta-box-text", true); ?>">    
+    </div>
+<?php    
+}
+
+
+function quote_meta_box_markup() {
+    
+}
+
+function add_custom_meta_box()
+{
+    add_meta_box("author-meta-box", "Author Name", "author_meta_box_markup", "quote", "normal", "high", null);
+	add_meta_box("quote-meta-box", "Quote", "quote_meta_box_markup", "quote", "normal", "high", null);
+}
+
+add_action("add_meta_boxes", "add_custom_meta_box");
 ?>
