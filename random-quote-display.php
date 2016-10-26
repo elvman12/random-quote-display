@@ -86,9 +86,57 @@ add_action( 'admin_enqueue_scripts', 'wpse_cpt_enqueue');
 function author_meta_box_markup() {
     wp_nonce_field(basename(__FILE__), "meta-box-nonce");
 	?>
-    <div id="author-text">
-    <input name="meta-box-text" type="text" value="<?php echo get_post_meta($object->ID, "meta-box-text", true); ?>">    
-    </div>
+    
+    <div>
+            <label for="meta-box-text">Text</label>
+            <input name="meta-box-text" type="text" value="<?php echo get_post_meta($object->ID, "meta-box-text", true); ?>">
+
+            <br>
+
+            <label for="meta-box-dropdown">Dropdown</label>
+            <select name="meta-box-dropdown">
+                <?php 
+                    $option_values = array(1, 2, 3);
+
+                    foreach($option_values as $key => $value) 
+                    {
+                        if($value == get_post_meta($object->ID, "meta-box-dropdown", true))
+                        {
+                            ?>
+                                <option selected><?php echo $value; ?></option>
+                            <?php    
+                        }
+                        else
+                        {
+                            ?>
+                                <option><?php echo $value; ?></option>
+                            <?php
+                        }
+                    }
+                ?>
+            </select>
+
+            <br>
+
+            <label for="meta-box-checkbox">Check Box</label>
+            <?php
+                $checkbox_value = get_post_meta($object->ID, "meta-box-checkbox", true);
+
+                if($checkbox_value == "")
+                {
+                    ?>
+                        <input name="meta-box-checkbox" type="checkbox" value="true">
+                    <?php
+                }
+                else if($checkbox_value == "true")
+                {
+                    ?>  
+                        <input name="meta-box-checkbox" type="checkbox" value="true" checked>
+                    <?php
+                }
+            ?>
+        </div> 
+   
 <?php    
 }
 
