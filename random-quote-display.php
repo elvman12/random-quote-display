@@ -38,27 +38,24 @@ function ctd_famous_quotes() {
 		'rewrite' => array( 'slug' => 'quote' ),
 		'menu_position' => 5,
 		'show_ui' => true,
+		'slug' => 'quote',
 		'show_in_admin_bar' => true,
+		'taxonomies' => array( 'category' ),
 		'menu_icon' => 'dashicons-format-quote',
-		//'supports' => array ( 'title', 'editor' )
-		'supports' => false // This line removes the default metaboxes for Title and Editor fields
+		'supports' => array ( 'title' )
+		//'supports' => false // This line removes the default metaboxes for Title and Editor fields
 	);
 	
 	register_post_type( 'quote', $args );
 }
 add_action( 'init', 'ctd_famous_quotes' );
 
-// Change the place holder text for entering a new famous quote
-function ctd_change_title_text( $title ){
-     $screen = get_current_screen();
- 
-     if  ( 'quote' == $screen->post_type ) {
-          $title = 'Quote author name goes here';
-     }
- 
-     return $title;
-} 
-add_filter( 'enter_title_here', 'ctd_change_title_text' );
+
+
+
+
+
+
 
 // Adding some jquery to the plugin, the right way!!!
 // All this code does is connect to the external js file contained in the plugin.
@@ -74,11 +71,12 @@ function wpse_cpt_enqueue( $hook_suffix ){
         }
     }
 }
-
 add_action( 'admin_enqueue_scripts', 'wpse_cpt_enqueue');
 
-// Let's add some custom taxonomy stuff so we can have appropriate categories for the quotes we add.
-// We might use things like famous, strange, motivational, etc.
+
+
+
+
 
 
 // Here is where we add the Meta Boxes to add our custom fields and data.
@@ -86,33 +84,64 @@ add_action( 'admin_enqueue_scripts', 'wpse_cpt_enqueue');
 
 // Markup for the author input
 function author_meta_box_markup() {
+	global $post;
+	$author_box_text = get_post_meta( $post->ID, 'author-box-text', true );
     wp_nonce_field(basename(__FILE__), "meta-box-nonce");
 	?>
     
     <div id="authorinput">
-    <input name="author-box-text" type="text" value="<?php echo get_post_meta($object->ID, "author-box-text", true); ?>"><br>
+    <input style="width:30%;" name="author-box-text" type="text" value="<?php echo "$author_box_text"; ?>"><br>
     </div> 
    
 <?php    
 }
 
-// Markup for the quote input
-function quote_meta_box_markup() {
-   wp_nonce_field(basename(__FILE__), "meta-box-nonce");
-	?>
-    
-    <div id="quoteinput">
-    <input name="quote-box-text" type="text" value="<?php echo get_post_meta($object->ID, "quote-box-text", true); ?>"><br>            
-    </div> 
-   
-<?php  
-}
 
+
+// This is what makes the meta boxes actually appear
 function add_custom_meta_box()
+{    
+	//add_meta_box("quote-meta-box", "Quote", "quote_meta_box_markup", "quote", "normal", "high", null);
+	add_meta_box("author-meta-box", "Author Name", "author_meta_box_markup", "quote", "normal", "low", null);
+}
+add_action("add_meta_boxes", "add_custom_meta_box");
+
+
+
+
+
+
+// Now we need to save the entered data to the dbase when someone clicks save or publish
+function save_custom_meta_box($post_id, $post, $update)
 {
-    add_meta_box("author-meta-box", "Author Name", "author_meta_box_markup", "quote", "normal", "high", null);
-	add_meta_box("quote-meta-box", "Quote", "quote_meta_box_markup", "quote", "normal", "high", null);
+    if (!isset($_POST["meta-box-nonce"]) || !wp_verify_nonce($_POST["meta-box-nonce"], basename(__FILE__)))
+        return $post_id;
+
+    if(!current_user_can("edit_post", $post_id))
+        return $post_id;
+
+    if(defined("DOING_AUTOSAVE") && DOING_AUTOSAVE)
+        return $post_id;
+
+    $slug = "quote";
+    if($slug != $post->post_type)
+        return $post_id;
+
+    $author_box_text_value = "";
+	//$quote_box_text_value = "";    
+
+    if(isset($_POST["author-box-text"]))
+    {
+        $author_box_text_value = $_POST["author-box-text"];
+    }   
+    update_post_meta($post_id, "author-box-text", $author_box_text_value);
+	
+	//if(isset($_POST["quote-box-text"]))
+    //{
+        //$quote_box_text_value = $_POST["quote-box-text"];
+    //}   
+    //update_post_meta($post_id, "quote-box-text", $quote_box_text_value);    
 }
 
-add_action("add_meta_boxes", "add_custom_meta_box");
+add_action("save_post", "save_custom_meta_box", 10, 3);
 ?>
