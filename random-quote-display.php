@@ -56,9 +56,7 @@ add_action( 'init', 'ctd_famous_quotes' );
 
 
 
-// Disable the annoying autosave feature on this post type
-add_action('admin_enqueue_scripts', 'my_admin_enqueue_scripts');
- 
+// Disable the annoying autosave feature on this post type 
 function my_admin_enqueue_scripts() {
   switch(get_post_type()) {
     case 'quote':
@@ -66,9 +64,14 @@ function my_admin_enqueue_scripts() {
       break;
   }
 }
+add_action('admin_enqueue_scripts', 'my_admin_enqueue_scripts');
 
 
-// Adding some jquery to the plugin, the right way!!!
+
+
+
+
+// Adding some jquery to the plugin, the right way to ONLY affect this custom post type!!!
 // All this code does is connect to the external js file contained in the plugin.
 function wpse_cpt_enqueue( $hook_suffix ){
     $cpt = 'quote';
@@ -131,8 +134,8 @@ function save_custom_meta_box($post_id, $post, $update)
     if(!current_user_can("edit_post", $post_id))
         return $post_id;
 
-    if(defined("DOING_AUTOSAVE") && DOING_AUTOSAVE)
-        return $post_id;
+    //if(defined("DOING_AUTOSAVE") && DOING_AUTOSAVE)
+        //return $post_id;
 
     $slug = "quote";
     if($slug != $post->post_type)
@@ -147,12 +150,10 @@ function save_custom_meta_box($post_id, $post, $update)
     }   
     update_post_meta($post_id, "author-box-text", $author_box_text_value);
 	
-	//if(isset($_POST["quote-box-text"]))
-    //{
-        //$quote_box_text_value = $_POST["quote-box-text"];
-    //}   
-    //update_post_meta($post_id, "quote-box-text", $quote_box_text_value);    
 }
-
 add_action("save_post", "save_custom_meta_box", 10, 3);
+
+
+//Let's count the number of quotes that are in the dbase
+
 ?>
