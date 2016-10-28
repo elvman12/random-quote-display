@@ -56,6 +56,17 @@ add_action( 'init', 'ctd_famous_quotes' );
 
 
 
+// Disable the annoying autosave feature on this post type
+add_action('admin_enqueue_scripts', 'my_admin_enqueue_scripts');
+ 
+function my_admin_enqueue_scripts() {
+  switch(get_post_type()) {
+    case 'quote':
+      wp_dequeue_script('autosave');
+      break;
+  }
+}
+
 
 // Adding some jquery to the plugin, the right way!!!
 // All this code does is connect to the external js file contained in the plugin.
