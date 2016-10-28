@@ -154,6 +154,9 @@ function save_custom_meta_box($post_id, $post, $update)
 add_action("save_post", "save_custom_meta_box", 10, 3);
 
 
-//Let's count the number of quotes that are in the dbase
+// Improvements for next IDP....
 
+// Create shortcode for user-friendliness, so it will be easier to add into widgets etc.
+// Create custom taxonomy for this custom post type only
+// Add separate stylesheet for this plugin, or leave that up to who uses it?
 ?>
