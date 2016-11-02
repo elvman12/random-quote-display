@@ -10,8 +10,9 @@ License:     Pretty much free, enjoy.
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 
-function ctd_famous_quotes() {
-	
+add_action( 'init', 'ctd_famous_quotes' );
+
+function ctd_famous_quotes() {	
 	$labels = array(
 		'name'               => 'Quotes',
 		'singular_name'      => 'Quote',
@@ -34,7 +35,7 @@ function ctd_famous_quotes() {
 		'hierarchical' => false,
 		'labels' => $labels,
 		'publicly_queryable' => false,
-		'exclude_from_search' => true,
+		'exclude_from_search' => false,
 		'rewrite' => array( 'slug' => 'quote' ),
 		'menu_position' => 5,
 		'show_ui' => true,
@@ -42,17 +43,25 @@ function ctd_famous_quotes() {
 		'show_in_admin_bar' => true,
 		'taxonomies' => array( 'category' ),
 		'menu_icon' => 'dashicons-format-quote',
-		'supports' => array ( 'title' )
-		//'supports' => false // This line removes the default metaboxes for Title and Editor fields
+		//'supports' => array ( 'title', 'editor' )		
+		'supports' => false // This line removes the default metaboxes for Title and Editor fields
 	);
 	
 	register_post_type( 'quote', $args );
 }
-add_action( 'init', 'ctd_famous_quotes' );
 
+// Plugin Activation
+function ctd_flush_rewrites() {
+	ctd_famous_quotes();
+	flush_rewrite_rules();
+}
+register_activation_hook( __FILE__, 'ctd_flush_rewrites' );
 
-
-
+// Plugin Deactivation
+function ctd_flush_rewrites_deactivate() {
+	flush_rewrite_rules();
+}
+register_deactivation_hook( __FILE__, 'ctd_flush_rewrites_deactivate' );
 
 
 
@@ -110,20 +119,37 @@ function author_meta_box_markup() {
 <?php    
 }
 
+// Markup for the quote input
+function quote_meta_box_markup() {
+	global $post;
+	$quote_box_text = get_post_meta( $post->ID, 'quote-box-text', true );
+    wp_nonce_field(basename(__FILE__), "meta-box-nonce");
+	?>
+    
+    <div id="quoteinput">
+    <input style="width:100%;" name="quote-box-text" type="text" value="<?php echo "$quote_box_text"; ?>"><br>
+    <!--<input type="hidden" name="post_title"value="<?php echo "$quote_box_text"; ?>" id="title" />-->
+    </div> 
+   
+<?php    
+}
+
 
 
 // This is what makes the meta boxes actually appear
 function add_custom_meta_box()
 {    
-	//add_meta_box("quote-meta-box", "Quote", "quote_meta_box_markup", "quote", "normal", "high", null);
+	add_meta_box("quote-meta-box", "Enter the Quote", "quote_meta_box_markup", "quote", "normal", "low", null);
 	add_meta_box("author-meta-box", "Author Name", "author_meta_box_markup", "quote", "normal", "low", null);
 }
 add_action("add_meta_boxes", "add_custom_meta_box");
 
-
-
-
-
+// Remove Unnecessary Metaboxes
+function ctd_remove_meta_stuff() {
+    remove_meta_box( 'sharing_meta' , 'quote' , 'advanced' );
+	remove_meta_box( 'wpseo_meta' , 'quote' , 'normal' );
+}
+add_action('do_meta_boxes','ctd_remove_meta_stuff');
 
 // Now we need to save the entered data to the dbase when someone clicks save or publish
 function save_custom_meta_box($post_id, $post, $update)
@@ -142,7 +168,7 @@ function save_custom_meta_box($post_id, $post, $update)
         return $post_id;
 
     $author_box_text_value = "";
-	//$quote_box_text_value = "";    
+	$quote_box_text_value = "";    
 
     if(isset($_POST["author-box-text"]))
     {
@@ -150,8 +176,20 @@ function save_custom_meta_box($post_id, $post, $update)
     }   
     update_post_meta($post_id, "author-box-text", $author_box_text_value);
 	
+	if(isset($_POST["quote-box-text"]))
+    {
+        $quote_box_text_value = $_POST["quote-box-text"];
+    }   
+    update_post_meta($post_id, "quote-box-text", $quote_box_text_value);
+	
+	if (($_POST['title']) == null) {
+		$post_title = ($_POST["quote-box-text"]);
+		$_POST['title'] = $post_title;	
+	}
 }
 add_action("save_post", "save_custom_meta_box", 10, 3);
+
+
 
 
 // Improvements for next IDP....
