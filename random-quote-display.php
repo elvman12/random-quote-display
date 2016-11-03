@@ -43,7 +43,6 @@ function ctd_famous_quotes() {
 		'show_in_admin_bar' => true,
 		'taxonomies' => array( 'category' ),
 		'menu_icon' => 'dashicons-format-quote',
-		//'supports' => array ( 'title', 'editor' )		
 		'supports' => false // This line removes the default metaboxes for Title and Editor fields
 	);
 	
