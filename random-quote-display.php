@@ -150,6 +150,31 @@ function ctd_remove_meta_stuff() {
 }
 add_action('do_meta_boxes','ctd_remove_meta_stuff');
 
+
+
+
+
+// Let's change the title to something other than Auto Draft
+function ctd_quote_title( $data , $postarr )  // Change title to the quote
+    {
+      if ($postarr['post_type'] == 'quote'){
+            $id = get_the_ID();
+            $quotetitle = "This plain text works, need the quote variable.";
+            $data['post_title'] = $quotetitle;
+      }
+      return $data;
+    }
+add_filter( 'wp_insert_post_data' , 'ctd_quote_title' , 99, 2 );
+
+
+
+
+
+
+
+
+
+
 // Now we need to save the entered data to the dbase when someone clicks save or publish
 function save_custom_meta_box($post_id, $post, $update)
 {
@@ -177,14 +202,9 @@ function save_custom_meta_box($post_id, $post, $update)
 	
 	if(isset($_POST["quote-box-text"]))
     {
-        $quote_box_text_value = $_POST["quote-box-text"];
+        $quote_box_text_value = $_POST["quote-box-text"];		
     }   
-    update_post_meta($post_id, "quote-box-text", $quote_box_text_value);
-	
-	if (($_POST['title']) == null) {
-		$post_title = ($_POST["quote-box-text"]);
-		$_POST['title'] = $post_title;	
-	}
+    update_post_meta($post_id, "quote-box-text", $quote_box_text_value);			
 }
 add_action("save_post", "save_custom_meta_box", 10, 3);
 
