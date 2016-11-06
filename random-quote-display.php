@@ -191,16 +191,16 @@ add_action("save_post", "save_custom_meta_box", 10, 3);
 
 
 // Let's change the title to something other than Auto Draft
-function ctd_quote_title( $data , $postarr )  // Change title to the quote
-    {
-      if ($postarr['post_type'] == 'quote'){
-            $id = get_the_ID();
-            $quotetitle = get_post_meta( $post->ID, 'quote-box-text', true );
-            $data['post_title'] = $quotetitle;
-      }
-      return $data;
+function ctd_set_title ( $post_id ) {
+    global $wpdb;
+    if ( get_post_type( $post_id ) == 'quote' ) {
+        $quotetitle= get_post_meta($post_id, 'quote-box-text', true);
+        $title = $quotetitle;
+        $where = array( 'ID' => $post_id );
+        $wpdb->update( $wpdb->posts, array( 'post_title' => $title ), $where );
     }
-add_filter( 'wp_insert_post_data' , 'ctd_quote_title' , 99, 2 );
+}
+add_action( 'save_post', 'ctd_set_title', 100 );
 
 
 
