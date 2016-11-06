@@ -210,4 +210,6 @@ add_action( 'save_post', 'ctd_set_title', 100 );
 // Create shortcode for user-friendliness, so it will be easier to add into widgets etc.
 // Create custom taxonomy for this custom post type only
 // Add separate stylesheet for this plugin, or leave that up to who uses it?
+// Other uses...  This would great to display random customer testimonials on a site.
+// A custom post type would be great for our team site... a new way to add release notes, or incident reports, etc.
 ?>
