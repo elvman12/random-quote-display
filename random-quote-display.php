@@ -194,8 +194,9 @@ add_action("save_post", "save_custom_meta_box", 10, 3);
 function ctd_set_title ( $post_id ) {
     global $wpdb;
     if ( get_post_type( $post_id ) == 'quote' ) {
-        $quotetitle= get_post_meta($post_id, 'quote-box-text', true);
-        $title = $quotetitle;
+        $quotetitle = get_post_meta($post_id, 'quote-box-text', true);
+		$quoteauthor = get_post_meta($post_id, 'author-box-text', true);
+        $title = $quotetitle . " &nbsp;&nbsp;(" . $quoteauthor . ")";
         $where = array( 'ID' => $post_id );
         $wpdb->update( $wpdb->posts, array( 'post_title' => $title ), $where );
     }
@@ -209,7 +210,6 @@ add_action( 'save_post', 'ctd_set_title', 100 );
 
 // Create shortcode for user-friendliness, so it will be easier to add into widgets etc.
 // Create custom taxonomy for this custom post type only (or ability for people to create their own category)
-// Append the author, to the end of the title for better wp admin viewing
 // Remove dbase overhead... (remove title from postmeta table since its a duplicate)
 // Add separate stylesheet for this plugin, or leave that up to who uses it?
 // Other uses...  This would great to display random customer testimonials on a site.
