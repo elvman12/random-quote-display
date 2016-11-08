@@ -208,7 +208,9 @@ add_action( 'save_post', 'ctd_set_title', 100 );
 // Improvements for next IDP....
 
 // Create shortcode for user-friendliness, so it will be easier to add into widgets etc.
-// Create custom taxonomy for this custom post type only
+// Create custom taxonomy for this custom post type only (or ability for people to create their own category)
+// Append the author, to the end of the title for better wp admin viewing
+// Remove dbase overhead... (remove title from postmeta table since its a duplicate)
 // Add separate stylesheet for this plugin, or leave that up to who uses it?
 // Other uses...  This would great to display random customer testimonials on a site.
 // A custom post type would be great for our team site... a new way to add release notes, or incident reports, etc.
