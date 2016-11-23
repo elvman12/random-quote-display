@@ -53,6 +53,7 @@ function ctd_famous_quotes() {
 function ctd_flush_rewrites() {
 	ctd_famous_quotes();
 	flush_rewrite_rules();
+	add_filter( 'widget_text', 'do_shortcode' );
 }
 register_activation_hook( __FILE__, 'ctd_flush_rewrites' );
 
@@ -203,15 +204,40 @@ function ctd_set_title ( $post_id ) {
 }
 add_action( 'save_post', 'ctd_set_title', 100 );
 
+// Let's add a simple shortcode
+function rqdshortcode () {
+ob_start();
+?>
 
+<div id="rqd-container" style="text-align:center; font-size:13px; overflow:auto; margin-bottom:40px;">
+    	<?php
+		$args=array('post_type'=>'quote', 'orderby'=>'rand', 'posts_per_page'=>'1');
+
+		$randomquote=new WP_Query($args);
+		while ($randomquote->have_posts()) : $randomquote->the_post();
+			$ctd_newtitle = get_the_title();
+			$ctd_newtitle = preg_replace("/\([^)]+\)/","",$ctd_newtitle);
+			$ctd_newtitle = str_replace(" &nbsp;&nbsp;", '', $ctd_newtitle);
+			
+		
+			?><p style="font-weight:bold; line-height:25px !important; padding-top:5px;"><?php echo "\"" . $ctd_newtitle . "\"";?></p>
+            
+            <?php $authorname = get_post_meta( get_the_ID(), 'author-box-text', true ); ?>
+            <?php echo "- " . $authorname . " -";?>
+        <?php    
+		endwhile;
+		wp_reset_postdata();
+		?> </div> <?php
+		
+		$output = ob_get_contents();
+		ob_end_clean();
+
+		return $output;
+	}
+add_shortcode( 'newshort', 'rqdshortcode' );
 
 
 // Improvements for next IDP....
 
-// Create shortcode for user-friendliness, so it will be easier to add into widgets etc.
 // Create custom taxonomy for this custom post type only (or ability for people to create their own category)
-// Remove dbase overhead... (remove title from postmeta table since its a duplicate)
-// Add separate stylesheet for this plugin, or leave that up to who uses it?
-// Other uses...  This would great to display random customer testimonials on a site.
-// A custom post type would be great for our team site... a new way to add release notes, or incident reports, etc.
 ?>
