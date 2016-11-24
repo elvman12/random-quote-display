@@ -1,0 +1,24 @@
+/** WP Admin Styling 
+#authorinput input {
+	width: 30%;	
+}
+
+#quoteinput input {
+	width: 100% !important;
+	height: 200px !important;	
+}**/
+
+/** Front-End Styling for Quote Output **/
+.rqd-container {
+	color: #000;
+	width: 80%;
+	margin: auto;
+	padding: 8px;
+	text-align: center;
+	font-size: 13px;
+}
+
+.rqd-container p.rqd-quote {
+	font-weight: bold;
+	padding-top: 10px;
+}

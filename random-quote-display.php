@@ -63,6 +63,11 @@ function ctd_flush_rewrites_deactivate() {
 }
 register_deactivation_hook( __FILE__, 'ctd_flush_rewrites_deactivate' );
 
+// Add a custom sytlesheet to the plugin
+function rqd_register_style(){
+	wp_enqueue_style( 'rqd-style', plugins_url( 'rqd-style.css' , __FILE__ ) );
+}
+add_action('wp_enqueue_scripts','rqd_register_style');
 
 
 // Disable the annoying autosave feature on this post type 
@@ -74,10 +79,6 @@ function my_admin_enqueue_scripts() {
   }
 }
 add_action('admin_enqueue_scripts', 'my_admin_enqueue_scripts');
-
-
-
-
 
 
 // Adding some jquery to the plugin, the right way to ONLY affect this custom post type!!!
@@ -95,11 +96,6 @@ function wpse_cpt_enqueue( $hook_suffix ){
     }
 }
 add_action( 'admin_enqueue_scripts', 'wpse_cpt_enqueue');
-
-
-
-
-
 
 
 // Here is where we add the Meta Boxes to add our custom fields and data.
@@ -204,12 +200,12 @@ function ctd_set_title ( $post_id ) {
 }
 add_action( 'save_post', 'ctd_set_title', 100 );
 
-// Let's add a simple shortcode
+// Let's add a simple shortcode that can be used to add this to text widgets
 function rqdshortcode () {
 ob_start();
 ?>
 
-<div id="rqd-container" style="text-align:center; font-size:13px; overflow:auto; margin-bottom:40px;">
+<div class="rqd-container">
     	<?php
 		$args=array('post_type'=>'quote', 'orderby'=>'rand', 'posts_per_page'=>'1');
 
@@ -220,10 +216,10 @@ ob_start();
 			$ctd_newtitle = str_replace(" &nbsp;&nbsp;", '', $ctd_newtitle);
 			
 		
-			?><p style="font-weight:bold; line-height:25px !important; padding-top:5px;"><?php echo "\"" . $ctd_newtitle . "\"";?></p>
+			?><p class="rqd-quote"><?php echo "\"" . $ctd_newtitle . "\"";?></p>
             
             <?php $authorname = get_post_meta( get_the_ID(), 'author-box-text', true ); ?>
-            <?php echo "- " . $authorname . " -";?>
+            <p class="rqd-author"><?php echo "- " . $authorname . " -";?></p>
         <?php    
 		endwhile;
 		wp_reset_postdata();
@@ -240,4 +236,5 @@ add_shortcode( 'newshort', 'rqdshortcode' );
 // Improvements for next IDP....
 
 // Create custom taxonomy for this custom post type only (or ability for people to create their own category)
+// Help text at the bottom of admin page
 ?>
