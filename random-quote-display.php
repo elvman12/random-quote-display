@@ -83,13 +83,6 @@ function rqd_taxonomy() {
 }
 add_action( 'init', 'rqd_taxonomy' );
 
-
-
-
-
-
-
-
 // Plugin Activation
 function ctd_flush_rewrites() {
 	ctd_famous_quotes();
@@ -171,8 +164,6 @@ function quote_meta_box_markup() {
 <?php    
 }
 
-
-
 // This is what makes the meta boxes actually appear
 function add_custom_meta_box()
 {    
@@ -187,10 +178,6 @@ function ctd_remove_meta_stuff() {
 	remove_meta_box( 'wpseo_meta' , 'quote' , 'normal' );
 }
 add_action('do_meta_boxes','ctd_remove_meta_stuff');
-
-
-
-
 
 // Now we need to save the entered data to the dbase when someone clicks save or publish
 function save_custom_meta_box($post_id, $post, $update)
@@ -224,9 +211,6 @@ function save_custom_meta_box($post_id, $post, $update)
     update_post_meta($post_id, "quote-box-text", $quote_box_text_value);			
 }
 add_action("save_post", "save_custom_meta_box", 10, 3);
-
-
-
 
 // Let's change the title to something other than Auto Draft
 function ctd_set_title ( $post_id ) {
@@ -273,9 +257,8 @@ ob_start();
 	}
 add_shortcode( 'newshort', 'rqdshortcode' );
 
-
 // Improvements for next IDP....
 
-// Create custom taxonomy for this custom post type only (or ability for people to create their own category)
-// Help text at the bottom of admin page
+// Help text at the bottom of admin page.
+// Figure out how to add paramaters to shortcode so people can display a random quote of a certain type.
 ?>
