@@ -209,22 +209,18 @@ function save_custom_meta_box($post_id, $post, $update)
     {
         $quote_box_text_value = $_POST["quote-box-text"];		
     }   
-    update_post_meta($post_id, "quote-box-text", $quote_box_text_value);			
+    update_post_meta($post_id, "quote-box-text", $quote_box_text_value);
+	
+	global $wpdb;
+	if ( get_post_type( $post_id ) == 'quote' ) {
+		$quotetitle = get_post_meta($post_id, 'quote-box-text', true);
+		$quoteauthor = get_post_meta($post_id, 'author-box-text', true);
+		$title = $quotetitle . " &nbsp;&nbsp;(" . $quoteauthor . ")";
+		$where = array( 'ID' => $post_id );
+		$wpdb->update( $wpdb->posts, array( 'post_title' => $title ), $where );
+	}			
 }
 add_action("save_post", "save_custom_meta_box", 10, 3);
-
-// Let's change the title to something other than Auto Draft
-function ctd_set_title ( $post_id ) {
-    global $wpdb;
-    if ( get_post_type( $post_id ) == 'quote' ) {
-        $quotetitle = get_post_meta($post_id, 'quote-box-text', true);
-		$quoteauthor = get_post_meta($post_id, 'author-box-text', true);
-        $title = $quotetitle . " &nbsp;&nbsp;(" . $quoteauthor . ")";
-        $where = array( 'ID' => $post_id );
-        $wpdb->update( $wpdb->posts, array( 'post_title' => $title ), $where );
-    }
-}
-add_action( 'save_post', 'ctd_set_title', 100 );
 
 // Let's add a simple shortcode that can be used to add this to text widgets
 function rqdshortcode () {
