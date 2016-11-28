@@ -3,7 +3,7 @@
 Plugin Name: Random Quote Display
 Plugin URI:  Not applicable
 Description: Custom Post Type to record quotes and credit names.
-Version:     1.0
+Version:     1.04
 Author:      Elvis Sherman
 Author URI:  http://wwww.clicktimedesign.com/
 License:     Pretty much free, enjoy.
@@ -102,6 +102,7 @@ function rqd_register_style(){
 	wp_enqueue_style( 'rqd-style', plugins_url( 'rqd-style.css' , __FILE__ ) );
 }
 add_action('wp_enqueue_scripts','rqd_register_style');
+add_action( 'admin_enqueue_scripts', 'rqd_register_style' );
 
 
 // Disable the annoying autosave feature on this post type 
@@ -143,7 +144,7 @@ function author_meta_box_markup() {
 	?>
     
     <div id="authorinput">
-    <input style="width:30%;" name="author-box-text" type="text" value="<?php echo "$author_box_text"; ?>"><br>
+    <input name="author-box-text" type="text" value="<?php echo "$author_box_text"; ?>"><br>
     </div> 
    
 <?php    
@@ -157,7 +158,7 @@ function quote_meta_box_markup() {
 	?>
     
     <div id="quoteinput">
-    <input style="width:100%;" name="quote-box-text" type="text" value="<?php echo "$quote_box_text"; ?>"><br>
+    <input name="quote-box-text" type="text" value="<?php echo "$quote_box_text"; ?>"><br>
     <!--<input type="hidden" name="post_title"value="<?php echo "$quote_box_text"; ?>" id="title" />-->
     </div> 
    
