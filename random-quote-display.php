@@ -3,7 +3,7 @@
 Plugin Name: Random Quote Display
 Plugin URI:  Not applicable
 Description: Custom Post Type to record quotes and credit names.
-Version:     1.04
+Version:     1.0
 Author:      Elvis Sherman
 Author URI:  http://wwww.clicktimedesign.com/
 License:     Pretty much free, enjoy.
@@ -41,7 +41,6 @@ function ctd_famous_quotes() {
 		'show_ui' => true,
 		'slug' => 'quote',
 		'show_in_admin_bar' => true,
-		//'taxonomies' => array( 'category' ),
 		'menu_icon' => 'dashicons-format-quote',
 		'supports' => false // This line removes the default metaboxes for Title and Editor fields
 	);
@@ -214,13 +213,117 @@ function rqd_save_quote($post_id, $post, $update)
 	global $wpdb;
 	if ( get_post_type( $post_id ) == 'quote' ) {
 		$quotetitle = get_post_meta($post_id, 'quote-box-text', true);
-		$quoteauthor = get_post_meta($post_id, 'author-box-text', true);
-		$title = $quotetitle . " &nbsp;&nbsp;(" . $quoteauthor . ")";
 		$where = array( 'ID' => $post_id );
-		$wpdb->update( $wpdb->posts, array( 'post_title' => $title ), $where );
+		$wpdb->update( $wpdb->posts, array( 'post_title' => $quotetitle ), $where );
 	}			
 }
 add_action("save_post", "rqd_save_quote", 10, 3);
+
+
+// Define Admin Columns
+function rqd_set_columns ( $columns ) {
+	$columns = array(
+		'cb' => '<input type="checkbox" />',
+		'title' => __( 'Quote' ),
+		'quote-author' => __( 'Quote Author' ),
+		'quote-type' => __( 'Type' ),
+		'date' => __( 'Date' )
+		
+	);
+	return $columns;
+}
+add_filter( 'manage_quote_posts_columns', 'rqd_set_columns' );
+
+// Populate Admin Columns
+function rqd_populate_columns( $column, $post_id ) {
+	global $post;
+
+	switch( $column ) {
+
+		// Display Quote Author
+		case 'quote-author' :
+			/* Get the post meta for quote author. */
+			$rqd_author = get_post_meta( get_the_ID(), 'author-box-text', true );
+
+			/* If no author is found, output a default message. */
+			if ( empty( $rqd_author ) )
+				echo __( 'Unknown' );
+			/* If there is a quote author, display it. */
+			else
+				printf( $rqd_author );
+			break;
+			
+		// Display Quote Type
+		case 'quote-type' :
+			/* Get the quote type. */
+			$rqd_type = get_the_terms( $post_id, 'Type' );
+			/* If types were found. */
+			if ( !empty( $rqd_type ) ) {
+
+				$out = array();
+
+				/* Loop through each term, linking to the 'edit posts' page for the specific type. */
+				foreach ( $rqd_type as $term ) {
+					$out[] = sprintf( '<a href="%s">%s</a>',
+						esc_url( add_query_arg( array( 'post_type' => $post->post_type, 'type' => $term->slug ), 'edit.php' ) ),
+						esc_html( sanitize_term_field( 'name', $term->name, $term->term_id, 'type', 'display' ) )
+					);
+				}
+
+				/* Join the terms, separating them with a comma. */
+				echo join( ', ', $out );
+			}
+			/* If no terms were found, output a default message. */
+			else {
+				_e( 'No Quote Type' );
+			}
+			break;			
+			
+		/* Just break out of the switch statement for everything else. */
+		default :
+			break;
+	}
+}
+add_action( 'manage_quote_posts_custom_column' , 'rqd_populate_columns', 10, 2 );
+
+// Make the Quote Author Column Sortable
+function rqd_sortable_columns( $columns ) {
+	$columns['quote-author'] = 'quote-author';
+	return $columns;
+}
+add_filter( 'manage_edit-quote_sortable_columns', 'rqd_sortable_columns' );
+
+/* Only run our customization on the 'edit.php' page in the admin. */
+add_action( 'load-edit.php', 'rqd_edit_quote_load' );
+
+function rqd_edit_quote_load() {
+	add_filter( 'request', 'rqd_sort_authors' );
+}
+
+/* Sorts the movies. */
+function rqd_sort_authors( $vars ) {	
+
+	/* Check if we're viewing the 'movie' post type. */
+	if ( isset( $vars['post_type'] ) && 'quote' == $vars['post_type'] ) {
+		
+		
+
+		/* Check if 'orderby' is set to 'duration'. */
+		if ( isset( $vars['orderby'] ) && 'quote-author' == $vars['orderby'] ) {
+
+			/* Merge the query vars with our custom variables. */
+			$vars = array_merge(
+				$vars,
+				array(
+					'meta_key' => 'author-box-text',
+					'orderby' => 'meta_value'
+				)
+			);
+		}
+	}
+
+	return $vars;
+}
 
 // Let's add a simple shortcode that can be used to add this to text widgets
 function rqdshortcode () {
@@ -234,8 +337,8 @@ ob_start();
 		$randomquote=new WP_Query($args);
 		while ($randomquote->have_posts()) : $randomquote->the_post();
 			$ctd_newtitle = get_the_title();
-			$ctd_newtitle = preg_replace("/\([^)]+\)/","",$ctd_newtitle);
-			$ctd_newtitle = str_replace(" &nbsp;&nbsp;", '', $ctd_newtitle);
+			//$ctd_newtitle = preg_replace("/\([^)]+\)/","",$ctd_newtitle);
+			//$ctd_newtitle = str_replace(" &nbsp;&nbsp;", '', $ctd_newtitle);
 			
 		
 			?><p class="rqd-quote"><?php echo "\"" . $ctd_newtitle . "\"";?></p>
@@ -258,5 +361,5 @@ add_shortcode( 'newshort', 'rqdshortcode' );
 
 // Help text at the bottom of admin page.
 // Manage columns for admin console, make them sortable
-// Figure out how to add paramaters to shortcode so people can display a random quote of a certain type.
+// Shortcodes with parameters.
 ?>
