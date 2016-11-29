@@ -181,7 +181,7 @@ function ctd_remove_meta_stuff() {
 add_action('do_meta_boxes','ctd_remove_meta_stuff');
 
 // Now we need to save the entered data to the dbase when someone clicks save or publish
-function save_custom_meta_box($post_id, $post, $update)
+function rqd_save_quote($post_id, $post, $update)
 {
     if (!isset($_POST["meta-box-nonce"]) || !wp_verify_nonce($_POST["meta-box-nonce"], basename(__FILE__)))
         return $post_id;
@@ -220,7 +220,7 @@ function save_custom_meta_box($post_id, $post, $update)
 		$wpdb->update( $wpdb->posts, array( 'post_title' => $title ), $where );
 	}			
 }
-add_action("save_post", "save_custom_meta_box", 10, 3);
+add_action("save_post", "rqd_save_quote", 10, 3);
 
 // Let's add a simple shortcode that can be used to add this to text widgets
 function rqdshortcode () {
@@ -257,5 +257,6 @@ add_shortcode( 'newshort', 'rqdshortcode' );
 // Improvements for next IDP....
 
 // Help text at the bottom of admin page.
+// Manage columns for admin console, make them sortable
 // Figure out how to add paramaters to shortcode so people can display a random quote of a certain type.
 ?>
