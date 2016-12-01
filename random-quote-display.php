@@ -86,7 +86,6 @@ add_action( 'init', 'rqd_taxonomy' );
 function ctd_flush_rewrites() {
 	ctd_famous_quotes();
 	flush_rewrite_rules();
-	add_filter( 'widget_text', 'do_shortcode' );
 }
 register_activation_hook( __FILE__, 'ctd_flush_rewrites' );
 
@@ -304,8 +303,7 @@ function rqd_edit_quote_load() {
 function rqd_sort_authors( $vars ) {	
 
 	/* Check if we're viewing the 'movie' post type. */
-	if ( isset( $vars['post_type'] ) && 'quote' == $vars['post_type'] ) {
-		
+	if ( isset( $vars['post_type'] ) && 'quote' == $vars['post_type'] ) {		
 		
 
 		/* Check if 'orderby' is set to 'duration'. */
@@ -336,10 +334,7 @@ ob_start();
 
 		$randomquote=new WP_Query($args);
 		while ($randomquote->have_posts()) : $randomquote->the_post();
-			$ctd_newtitle = get_the_title();
-			//$ctd_newtitle = preg_replace("/\([^)]+\)/","",$ctd_newtitle);
-			//$ctd_newtitle = str_replace(" &nbsp;&nbsp;", '', $ctd_newtitle);
-			
+			$ctd_newtitle = get_the_title();			
 		
 			?><p class="rqd-quote"><?php echo "\"" . $ctd_newtitle . "\"";?></p>
             
@@ -356,6 +351,7 @@ ob_start();
 		return $output;
 	}
 add_shortcode( 'newshort', 'rqdshortcode' );
+add_filter( 'widget_text', 'do_shortcode' );
 
 // Improvements for next IDP....
 
