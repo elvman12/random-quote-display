@@ -96,22 +96,12 @@ function ctd_flush_rewrites_deactivate() {
 register_deactivation_hook( __FILE__, 'ctd_flush_rewrites_deactivate' );
 
 // Add a custom sytlesheet to the plugin
-function rqd_register_style(){
+function rqd_register_scripts(){
 	wp_enqueue_style( 'rqd-style', plugins_url( 'rqd-style.css' , __FILE__ ) );
+	wp_dequeue_script('autosave');
 }
-add_action('wp_enqueue_scripts','rqd_register_style');
-add_action( 'admin_enqueue_scripts', 'rqd_register_style' );
-
-
-// Disable the annoying autosave feature on this post type 
-function my_admin_enqueue_scripts() {
-  switch(get_post_type()) {
-    case 'quote':
-      wp_dequeue_script('autosave');
-      break;
-  }
-}
-add_action('admin_enqueue_scripts', 'my_admin_enqueue_scripts');
+add_action('wp_enqueue_scripts','rqd_register_scripts');
+add_action( 'admin_enqueue_scripts', 'rqd_register_scripts' );
 
 
 // Adding some jquery to the plugin, the right way to ONLY affect this custom post type!!!
@@ -156,8 +146,7 @@ function quote_meta_box_markup() {
 	?>
     
     <div id="quoteinput">
-    <input name="quote-box-text" type="text" value="<?php echo "$quote_box_text"; ?>"><br>
-    <!--<input type="hidden" name="post_title"value="<?php echo "$quote_box_text"; ?>" id="title" />-->
+    <input name="quote-box-text" type="text" value="<?php echo "$quote_box_text"; ?>"><br>    
     </div> 
    
 <?php    
@@ -187,9 +176,6 @@ function rqd_save_quote($post_id, $post, $update)
     if(!current_user_can("edit_post", $post_id))
         return $post_id;
 
-    //if(defined("DOING_AUTOSAVE") && DOING_AUTOSAVE)
-        //return $post_id;
-
     $slug = "quote";
     if($slug != $post->post_type)
         return $post_id;
@@ -200,12 +186,18 @@ function rqd_save_quote($post_id, $post, $update)
     if(isset($_POST["author-box-text"]))
     {
         $author_box_text_value = $_POST["author-box-text"];
+		$author_box_text_value = strip_tags($author_box_text_value);		
+		$author_box_text_value = stripslashes($author_box_text_value);
     }   
     update_post_meta($post_id, "author-box-text", $author_box_text_value);
 	
 	if(isset($_POST["quote-box-text"]))
     {
-        $quote_box_text_value = $_POST["quote-box-text"];		
+        $quote_box_text_value = $_POST["quote-box-text"];
+		$quote_box_text_value = strip_tags($quote_box_text_value);		
+		$quote_box_text_value = stripslashes($quote_box_text_value);
+		//$quote_box_text_value = trim($quote_box_text_value,'"');
+		//$quote_box_text_value = esc_sql( $quote_box_text_value );		
     }   
     update_post_meta($post_id, "quote-box-text", $quote_box_text_value);
 	
@@ -350,7 +342,7 @@ ob_start();
 
 		return $output;
 	}
-add_shortcode( 'newshort', 'rqdshortcode' );
+add_shortcode( 'quickquote', 'rqdshortcode' );
 add_filter( 'widget_text', 'do_shortcode' );
 
 // Improvements for next IDP....
