@@ -128,6 +128,7 @@ add_action( 'admin_enqueue_scripts', 'wpse_cpt_enqueue');
 function author_meta_box_markup() {
 	global $post;
 	$author_box_text = get_post_meta( $post->ID, 'author-box-text', true );
+	$author_box_text = htmlentities($author_box_text, ENT_QUOTES);
     wp_nonce_field(basename(__FILE__), "meta-box-nonce");
 	?>
     
@@ -141,15 +142,16 @@ function author_meta_box_markup() {
 // Markup for the quote input
 function quote_meta_box_markup() {
 	global $post;
-	$quote_box_text = get_post_meta( $post->ID, 'quote-box-text', true );
-    wp_nonce_field(basename(__FILE__), "meta-box-nonce");
+	//$quote_box_text = get_post_meta( $post->ID, 'quote-box-text', true );
+	$quote_title = get_the_title();
+	wp_nonce_field(basename(__FILE__), "meta-box-nonce");
 	?>
     
     <div id="quoteinput">
-    <input name="quote-box-text" type="text" value="<?php echo "$quote_box_text"; ?>"><br>    
+    <input name="quote-box-text" type="text" value="<?php echo "$quote_title"; ?>"><br>    
     </div> 
    
-<?php    
+<?php
 }
 
 // This is what makes the meta boxes actually appear
@@ -185,25 +187,20 @@ function rqd_save_quote($post_id, $post, $update)
 
     if(isset($_POST["author-box-text"]))
     {
-        $author_box_text_value = $_POST["author-box-text"];
-		$author_box_text_value = strip_tags($author_box_text_value);		
-		$author_box_text_value = stripslashes($author_box_text_value);
-    }   
+        $author_box_text_value = sanitize_text_field($_POST["author-box-text"]);
+	}   
     update_post_meta($post_id, "author-box-text", $author_box_text_value);
 	
 	if(isset($_POST["quote-box-text"]))
     {
-        $quote_box_text_value = $_POST["quote-box-text"];
-		$quote_box_text_value = strip_tags($quote_box_text_value);		
-		$quote_box_text_value = stripslashes($quote_box_text_value);
-		//$quote_box_text_value = trim($quote_box_text_value,'"');
-		//$quote_box_text_value = esc_sql( $quote_box_text_value );		
-    }   
+		$quote_box_text_value = sanitize_text_field($_POST["quote-box-text"]);
+	}   
     update_post_meta($post_id, "quote-box-text", $quote_box_text_value);
 	
 	global $wpdb;
 	if ( get_post_type( $post_id ) == 'quote' ) {
 		$quotetitle = get_post_meta($post_id, 'quote-box-text', true);
+		$quotetitle = trim($quotetitle,'"');
 		$where = array( 'ID' => $post_id );
 		$wpdb->update( $wpdb->posts, array( 'post_title' => $quotetitle ), $where );
 	}			
@@ -346,8 +343,5 @@ add_shortcode( 'quickquote', 'rqdshortcode' );
 add_filter( 'widget_text', 'do_shortcode' );
 
 // Improvements for next IDP....
-
-// Help text at the bottom of admin page.
-// Manage columns for admin console, make them sortable
 // Shortcodes with parameters.
 ?>
