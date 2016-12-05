@@ -9,30 +9,43 @@
 
 #rqd-instructions {
 	min-width: 255px;
-	height: 400px;
-	padding: 10px;
+	overflow: auto;
+	padding: 5px 20px 20px 20px;
 	margin-top: 45px;
 	border: solid 2px #2790bd;
 	border-radius: 10px;
 	background: #eee;	
 }
 
+#rqd-instructions h3 {
+	font-size: 18px;	
+}
+
+#rqd-instructions p { font-style: italic; }
+
 h2.hndle {
 	font-size: 18px !important;	
 }
 
-#rqd-instructions h2.hndle {
-	font-size: 18px;
+#rqd-instructions h2 {
+	font-size: 20px;
 	font-weight: bold;
-	padding-bottom: 10px;
+	padding-bottom: 12px;
 	text-align: center;
 	border-bottom: solid 1px #2790bd;
+}
+
+span.copythis {
+	font-weight: bold;
+	font-size: 16px;
+	color: #ff6b43;
+	font-style: normal;	
 }
 
 /** Front-End Styling for Quote Output **/
 .rqd-container {
 	color: #000;
-	width: 80%;
+	width: 100%;
 	margin: auto;
 	padding: 8px;
 	text-align: center;
@@ -42,4 +55,9 @@ h2.hndle {
 .rqd-container p.rqd-quote {
 	font-weight: bold;
 	padding-top: 10px;
+	width: 100%;
+}
+
+.rqd-container p.rqd-author {
+	font-style: italic;
 }
