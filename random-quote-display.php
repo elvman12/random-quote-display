@@ -10,9 +10,19 @@ License:     Pretty much free, enjoy.
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 
-define( 'QQ_PLUGIN_PATH', plugin_dir_path(__FILE__) );
+define ( 'QQ_PLUGIN_PATH', plugin_dir_path(__FILE__) );
 
-require_once( QQ_PLUGIN_PATH . 'includes/post-type.php' );
+include ( QQ_PLUGIN_PATH . 'includes/post-type.php' );
+include ( QQ_PLUGIN_PATH . 'includes/support.php' );
+
+// Add a custom sytlesheet to the plugin
+//function rqd_register_scripts(){
+	//wp_enqueue_style( 'rqd-style', plugins_url( '/rqd-style.css' , __FILE__ ) );
+	//wp_dequeue_script('autosave');
+//}
+//add_action('wp_enqueue_scripts','rqd_register_scripts');
+//add_action( 'admin_enqueue_scripts', 'rqd_register_scripts' );
+
 
 // Plugin Activation
 function ctd_flush_rewrites() {
@@ -27,13 +37,7 @@ function ctd_flush_rewrites_deactivate() {
 }
 register_deactivation_hook( __FILE__, 'ctd_flush_rewrites_deactivate' );
 
-// Add a custom sytlesheet to the plugin
-function rqd_register_scripts(){
-	wp_enqueue_style( 'rqd-style', plugins_url( 'rqd-style.css' , __FILE__ ) );
-	wp_dequeue_script('autosave');
-}
-add_action('wp_enqueue_scripts','rqd_register_scripts');
-add_action( 'admin_enqueue_scripts', 'rqd_register_scripts' );
+
 
 
 // Adding some jquery to the plugin, the right way to ONLY affect this custom post type!!!
