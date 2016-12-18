@@ -3,7 +3,7 @@
 Plugin Name: Random Quote Display
 Plugin URI:  Not applicable
 Description: Custom Post Type to record quotes and credit names.
-Version:     1.04
+Version:     1.0
 Author:      Elvis Sherman
 Author URI:  http://wwww.clicktimedesign.com/
 License:     Pretty much free, enjoy.
@@ -41,7 +41,6 @@ function ctd_famous_quotes() {
 		'show_ui' => true,
 		'slug' => 'quote',
 		'show_in_admin_bar' => true,
-		//'taxonomies' => array( 'category' ),
 		'menu_icon' => 'dashicons-format-quote',
 		'supports' => false // This line removes the default metaboxes for Title and Editor fields
 	);
@@ -87,7 +86,6 @@ add_action( 'init', 'rqd_taxonomy' );
 function ctd_flush_rewrites() {
 	ctd_famous_quotes();
 	flush_rewrite_rules();
-	add_filter( 'widget_text', 'do_shortcode' );
 }
 register_activation_hook( __FILE__, 'ctd_flush_rewrites' );
 
@@ -98,22 +96,12 @@ function ctd_flush_rewrites_deactivate() {
 register_deactivation_hook( __FILE__, 'ctd_flush_rewrites_deactivate' );
 
 // Add a custom sytlesheet to the plugin
-function rqd_register_style(){
+function rqd_register_scripts(){
 	wp_enqueue_style( 'rqd-style', plugins_url( 'rqd-style.css' , __FILE__ ) );
+	wp_dequeue_script('autosave');
 }
-add_action('wp_enqueue_scripts','rqd_register_style');
-add_action( 'admin_enqueue_scripts', 'rqd_register_style' );
-
-
-// Disable the annoying autosave feature on this post type 
-function my_admin_enqueue_scripts() {
-  switch(get_post_type()) {
-    case 'quote':
-      wp_dequeue_script('autosave');
-      break;
-  }
-}
-add_action('admin_enqueue_scripts', 'my_admin_enqueue_scripts');
+add_action('wp_enqueue_scripts','rqd_register_scripts');
+add_action( 'admin_enqueue_scripts', 'rqd_register_scripts' );
 
 
 // Adding some jquery to the plugin, the right way to ONLY affect this custom post type!!!
@@ -127,6 +115,7 @@ function wpse_cpt_enqueue( $hook_suffix ){
         if( is_object( $screen ) && $cpt == $screen->post_type ){
             // Register, enqueue scripts and styles here
 			wp_enqueue_script(  'myscript', plugins_url('random-quote-display/js/custom.js') );
+			//wp_enqueue_script(  'validate', plugins_url('random-quote-display/js/validate.js') );
         }
     }
 }
@@ -140,6 +129,7 @@ add_action( 'admin_enqueue_scripts', 'wpse_cpt_enqueue');
 function author_meta_box_markup() {
 	global $post;
 	$author_box_text = get_post_meta( $post->ID, 'author-box-text', true );
+	$author_box_text = htmlentities($author_box_text, ENT_QUOTES);
     wp_nonce_field(basename(__FILE__), "meta-box-nonce");
 	?>
     
@@ -153,16 +143,16 @@ function author_meta_box_markup() {
 // Markup for the quote input
 function quote_meta_box_markup() {
 	global $post;
-	$quote_box_text = get_post_meta( $post->ID, 'quote-box-text', true );
-    wp_nonce_field(basename(__FILE__), "meta-box-nonce");
+	//$quote_box_text = get_post_meta( $post->ID, 'quote-box-text', true );
+	$quote_title = get_the_title();
+	wp_nonce_field(basename(__FILE__), "meta-box-nonce");
 	?>
     
     <div id="quoteinput">
-    <input name="quote-box-text" type="text" value="<?php echo "$quote_box_text"; ?>"><br>
-    <!--<input type="hidden" name="post_title"value="<?php echo "$quote_box_text"; ?>" id="title" />-->
+    <input name="quote-box-text" type="text" value="<?php echo "$quote_title"; ?>"><br>    
     </div> 
    
-<?php    
+<?php
 }
 
 // This is what makes the meta boxes actually appear
@@ -189,9 +179,6 @@ function rqd_save_quote($post_id, $post, $update)
     if(!current_user_can("edit_post", $post_id))
         return $post_id;
 
-    //if(defined("DOING_AUTOSAVE") && DOING_AUTOSAVE)
-        //return $post_id;
-
     $slug = "quote";
     if($slug != $post->post_type)
         return $post_id;
@@ -201,31 +188,54 @@ function rqd_save_quote($post_id, $post, $update)
 
     if(isset($_POST["author-box-text"]))
     {
-        $author_box_text_value = $_POST["author-box-text"];
-    }   
+		$author_box_text_value = sanitize_text_field($_POST["author-box-text"]);
+	}   
     update_post_meta($post_id, "author-box-text", $author_box_text_value);
 	
-	if(isset($_POST["quote-box-text"]))
-    {
-        $quote_box_text_value = $_POST["quote-box-text"];		
-    }   
+	//if(isset($_POST["quote-box-text"]))
+    //{
+		//$quote_box_text_value = sanitize_text_field($_POST["quote-box-text"]);
+	//}   
+    //update_post_meta($post_id, "quote-box-text", $quote_box_text_value);
+	
+	
+	
+	if($_POST["quote-box-text"] == "") {
+		$quote_box_text_value = "Hello Johnny";
+		// This works... add logic here call a function for admin messages.		
+	} else {
+		$quote_box_text_value = sanitize_text_field($_POST["quote-box-text"]);
+	}   
     update_post_meta($post_id, "quote-box-text", $quote_box_text_value);
+	
+	
+	
+	
+	
 	
 	global $wpdb;
 	if ( get_post_type( $post_id ) == 'quote' ) {
 		$quotetitle = get_post_meta($post_id, 'quote-box-text', true);
+		$quotetitle = trim($quotetitle,'"');
 		$where = array( 'ID' => $post_id );
 		$wpdb->update( $wpdb->posts, array( 'post_title' => $quotetitle ), $where );
-		
-		//$quotetitle = get_post_meta($post_id, 'quote-box-text', true);
-		//$quoteauthor = get_post_meta($post_id, 'author-box-text', true);
-		//$title = $quotetitle . " &nbsp;&nbsp;(" . $quoteauthor . ")";
-		//$where = array( 'ID' => $post_id );
-		//$wpdb->update( $wpdb->posts, array( 'post_title' => $title ), $where );
 	}			
 }
 add_action("save_post", "rqd_save_quote", 10, 3);
 
+// Admin Notice for Missing Fields
+function qq_missing_fields() {
+	$screen = get_current_screen();
+	
+	if( $screen->id !='edit-post' )
+        return;
+	
+	$class = 'notice notice-error is-dismissable';
+	$message = __( 'Irks! An error has occurred.', 'random-quote-display' );
+
+	printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); 
+}
+add_action( 'admin_notices', 'qq_missing_fields' );
 
 // Define Admin Columns
 function rqd_set_columns ( $columns ) {
@@ -300,11 +310,6 @@ function rqd_sortable_columns( $columns ) {
 }
 add_filter( 'manage_edit-quote_sortable_columns', 'rqd_sortable_columns' );
 
-
-
-
-
-
 /* Only run our customization on the 'edit.php' page in the admin. */
 add_action( 'load-edit.php', 'rqd_edit_quote_load' );
 
@@ -316,8 +321,7 @@ function rqd_edit_quote_load() {
 function rqd_sort_authors( $vars ) {	
 
 	/* Check if we're viewing the 'movie' post type. */
-	if ( isset( $vars['post_type'] ) && 'quote' == $vars['post_type'] ) {
-		
+	if ( isset( $vars['post_type'] ) && 'quote' == $vars['post_type'] ) {		
 		
 
 		/* Check if 'orderby' is set to 'duration'. */
@@ -337,21 +341,6 @@ function rqd_sort_authors( $vars ) {
 	return $vars;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Let's add a simple shortcode that can be used to add this to text widgets
 function rqdshortcode () {
 ob_start();
@@ -363,10 +352,7 @@ ob_start();
 
 		$randomquote=new WP_Query($args);
 		while ($randomquote->have_posts()) : $randomquote->the_post();
-			$ctd_newtitle = get_the_title();
-			//$ctd_newtitle = preg_replace("/\([^)]+\)/","",$ctd_newtitle);
-			//$ctd_newtitle = str_replace(" &nbsp;&nbsp;", '', $ctd_newtitle);
-			
+			$ctd_newtitle = get_the_title();			
 		
 			?><p class="rqd-quote"><?php echo "\"" . $ctd_newtitle . "\"";?></p>
             
@@ -382,11 +368,9 @@ ob_start();
 
 		return $output;
 	}
-add_shortcode( 'newshort', 'rqdshortcode' );
+add_shortcode( 'quickquote', 'rqdshortcode' );
+add_filter( 'widget_text', 'do_shortcode' );
 
 // Improvements for next IDP....
-
-// Help text at the bottom of admin page.
-// Manage columns for admin console, make them sortable
 // Shortcodes with parameters.
 ?>
