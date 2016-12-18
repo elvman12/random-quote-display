@@ -170,6 +170,18 @@ function ctd_remove_meta_stuff() {
 }
 add_action('do_meta_boxes','ctd_remove_meta_stuff');
 
+
+
+
+
+
+
+
+
+
+
+
+
 // Now we need to save the entered data to the dbase when someone clicks save or publish
 function rqd_save_quote($post_id, $post, $update)
 {
@@ -183,35 +195,19 @@ function rqd_save_quote($post_id, $post, $update)
     if($slug != $post->post_type)
         return $post_id;
 
-    $author_box_text_value = "";
-	$quote_box_text_value = "";    
+    //$author_box_text_value = "";
+	//$quote_box_text_value = "";    
 
-    if(isset($_POST["author-box-text"]))
-    {
-		$author_box_text_value = sanitize_text_field($_POST["author-box-text"]);
-	}   
-    update_post_meta($post_id, "author-box-text", $author_box_text_value);
+    
 	
-	//if(isset($_POST["quote-box-text"]))
-    //{
-		//$quote_box_text_value = sanitize_text_field($_POST["quote-box-text"]);
-	//}   
+	
+	if($_POST["author-box-text"] == "" || $_POST["quote-box-text"] == "") {
+		qq_missing_fields();		
+	}	
+	
+	   
     //update_post_meta($post_id, "quote-box-text", $quote_box_text_value);
-	
-	
-	
-	if($_POST["quote-box-text"] == "") {
-		$quote_box_text_value = "Hello Johnny";
-		// This works... add logic here call a function for admin messages.		
-	} else {
-		$quote_box_text_value = sanitize_text_field($_POST["quote-box-text"]);
-	}   
-    update_post_meta($post_id, "quote-box-text", $quote_box_text_value);
-	
-	
-	
-	
-	
+	//update_post_meta($post_id, "author-box-text", $author_box_text_value );	
 	
 	global $wpdb;
 	if ( get_post_type( $post_id ) == 'quote' ) {
@@ -223,8 +219,19 @@ function rqd_save_quote($post_id, $post, $update)
 }
 add_action("save_post", "rqd_save_quote", 10, 3);
 
+
+
+
+
+
+
+
+
 // Admin Notice for Missing Fields
 function qq_missing_fields() {
+	settings_errors();
+	
+	
 	$screen = get_current_screen();
 	
 	if( $screen->id !='edit-post' )
@@ -236,6 +243,20 @@ function qq_missing_fields() {
 	printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); 
 }
 add_action( 'admin_notices', 'qq_missing_fields' );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Define Admin Columns
 function rqd_set_columns ( $columns ) {
