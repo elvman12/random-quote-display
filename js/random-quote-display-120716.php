@@ -1,14 +1,5 @@
 <?php
-/*
-Plugin Name: Random Quote Display
-Plugin URI:  Not applicable
-Description: Custom Post Type to record quotes and credit names.
-Version:     1.0
-Author:      Elvis Sherman
-Author URI:  http://wwww.clicktimedesign.com/
-License:     Pretty much free, enjoy.
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-*/
+
 
 add_action( 'init', 'ctd_famous_quotes' );
 

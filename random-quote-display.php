@@ -14,52 +14,13 @@ define ( 'QQ_PLUGIN_PATH', plugin_dir_path(__FILE__) );
 
 include ( QQ_PLUGIN_PATH . 'includes/post-type.php' );
 include ( QQ_PLUGIN_PATH . 'includes/support.php' );
-
-// Add a custom sytlesheet to the plugin
-//function rqd_register_scripts(){
-	//wp_enqueue_style( 'rqd-style', plugins_url( '/rqd-style.css' , __FILE__ ) );
-	//wp_dequeue_script('autosave');
-//}
-//add_action('wp_enqueue_scripts','rqd_register_scripts');
-//add_action( 'admin_enqueue_scripts', 'rqd_register_scripts' );
-
-
-// Plugin Activation
-function ctd_flush_rewrites() {
-	ctd_famous_quotes();
-	flush_rewrite_rules();
-}
-register_activation_hook( __FILE__, 'ctd_flush_rewrites' );
-
-// Plugin Deactivation
-function ctd_flush_rewrites_deactivate() {
-	flush_rewrite_rules();
-}
-register_deactivation_hook( __FILE__, 'ctd_flush_rewrites_deactivate' );
+include ( QQ_PLUGIN_PATH . 'includes/shortcodes.php' );
+include ( QQ_PLUGIN_PATH . 'includes/columns.php' );
+include ( QQ_PLUGIN_PATH . 'includes/metaboxes.php' );
 
 
 
 
-// Adding some jquery to the plugin, the right way to ONLY affect this custom post type!!!
-// All this code does is connect to the external js file contained in the plugin.
-function wpse_cpt_enqueue( $hook_suffix ){
-    $cpt = 'quote';
-
-    if( in_array($hook_suffix, array('post.php', 'post-new.php') ) ){
-        $screen = get_current_screen();
-
-        if( is_object( $screen ) && $cpt == $screen->post_type ){
-            // Register, enqueue scripts and styles here
-			wp_enqueue_script(  'myscript', plugins_url('random-quote-display/js/custom.js') );
-			//wp_enqueue_script(  'validate', plugins_url('random-quote-display/js/validate.js') );
-        }
-    }
-}
-add_action( 'admin_enqueue_scripts', 'wpse_cpt_enqueue');
-
-
-// Here is where we add the Meta Boxes to add our custom fields and data.
-// As you can see each meta box requires a function that defines the HTML Markup, or what is contained in the meta box.
 
 // Markup for the author input
 function author_meta_box_markup() {
@@ -86,25 +47,18 @@ function quote_meta_box_markup() {
     
     <div id="quoteinput">
     <input name="quote-box-text" type="text" value="<?php echo "$quote_title"; ?>"><br>    
-    </div> 
-   
-<?php
+    </div>
+    
+    <?php
 }
 
-// This is what makes the meta boxes actually appear
-function add_custom_meta_box()
-{    
-	add_meta_box("quote-meta-box", "Enter the Quote", "quote_meta_box_markup", "quote", "normal", "low", null);
-	add_meta_box("author-meta-box", "Author Name", "author_meta_box_markup", "quote", "normal", "low", null);
-}
-add_action("add_meta_boxes", "add_custom_meta_box");
 
-// Remove Unnecessary Metaboxes
-function ctd_remove_meta_stuff() {
-    remove_meta_box( 'sharing_meta' , 'quote' , 'advanced' );
-	remove_meta_box( 'wpseo_meta' , 'quote' , 'normal' );
-}
-add_action('do_meta_boxes','ctd_remove_meta_stuff');
+
+
+
+
+
+
 
 
 
@@ -131,19 +85,20 @@ function rqd_save_quote($post_id, $post, $update)
     if($slug != $post->post_type)
         return $post_id;
 
-    //$author_box_text_value = "";
-	//$quote_box_text_value = "";    
-
-    
+    $author_box_text_value = "";
+	$quote_box_text_value = "";	
+ 
+    if(isset($_POST["author-box-text"]))
+    {
+		$author_box_text_value = sanitize_text_field($_POST["author-box-text"]);
+	}   
+    update_post_meta($post_id, "author-box-text", $author_box_text_value);
 	
-	
-	if($_POST["author-box-text"] == "" || $_POST["quote-box-text"] == "") {
-		qq_missing_fields();		
-	}	
-	
-	   
-    //update_post_meta($post_id, "quote-box-text", $quote_box_text_value);
-	//update_post_meta($post_id, "author-box-text", $author_box_text_value );	
+	if(isset($_POST["quote-box-text"]))
+    {
+		$quote_box_text_value = sanitize_text_field($_POST["quote-box-text"]);
+	}   
+    update_post_meta($post_id, "quote-box-text", $quote_box_text_value);
 	
 	global $wpdb;
 	if ( get_post_type( $post_id ) == 'quote' ) {
@@ -154,179 +109,6 @@ function rqd_save_quote($post_id, $post, $update)
 	}			
 }
 add_action("save_post", "rqd_save_quote", 10, 3);
-
-
-
-
-
-
-
-
-
-// Admin Notice for Missing Fields
-function qq_missing_fields() {
-	settings_errors();
-	
-	
-	$screen = get_current_screen();
-	
-	if( $screen->id !='edit-post' )
-        return;
-	
-	$class = 'notice notice-error is-dismissable';
-	$message = __( 'Irks! An error has occurred.', 'random-quote-display' );
-
-	printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); 
-}
-add_action( 'admin_notices', 'qq_missing_fields' );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Define Admin Columns
-function rqd_set_columns ( $columns ) {
-	$columns = array(
-		'cb' => '<input type="checkbox" />',
-		'title' => __( 'Quote' ),
-		'quote-author' => __( 'Quote Author' ),
-		'quote-type' => __( 'Type' ),
-		'date' => __( 'Date' )
-		
-	);
-	return $columns;
-}
-add_filter( 'manage_quote_posts_columns', 'rqd_set_columns' );
-
-// Populate Admin Columns
-function rqd_populate_columns( $column, $post_id ) {
-	global $post;
-
-	switch( $column ) {
-
-		// Display Quote Author
-		case 'quote-author' :
-			/* Get the post meta for quote author. */
-			$rqd_author = get_post_meta( get_the_ID(), 'author-box-text', true );
-
-			/* If no author is found, output a default message. */
-			if ( empty( $rqd_author ) )
-				echo __( 'Unknown' );
-			/* If there is a quote author, display it. */
-			else
-				printf( $rqd_author );
-			break;
-			
-		// Display Quote Type
-		case 'quote-type' :
-			/* Get the quote type. */
-			$rqd_type = get_the_terms( $post_id, 'Type' );
-			/* If types were found. */
-			if ( !empty( $rqd_type ) ) {
-
-				$out = array();
-
-				/* Loop through each term, linking to the 'edit posts' page for the specific type. */
-				foreach ( $rqd_type as $term ) {
-					$out[] = sprintf( '<a href="%s">%s</a>',
-						esc_url( add_query_arg( array( 'post_type' => $post->post_type, 'type' => $term->slug ), 'edit.php' ) ),
-						esc_html( sanitize_term_field( 'name', $term->name, $term->term_id, 'type', 'display' ) )
-					);
-				}
-
-				/* Join the terms, separating them with a comma. */
-				echo join( ', ', $out );
-			}
-			/* If no terms were found, output a default message. */
-			else {
-				_e( 'No Quote Type' );
-			}
-			break;			
-			
-		/* Just break out of the switch statement for everything else. */
-		default :
-			break;
-	}
-}
-add_action( 'manage_quote_posts_custom_column' , 'rqd_populate_columns', 10, 2 );
-
-// Make the Quote Author Column Sortable
-function rqd_sortable_columns( $columns ) {
-	$columns['quote-author'] = 'quote-author';
-	return $columns;
-}
-add_filter( 'manage_edit-quote_sortable_columns', 'rqd_sortable_columns' );
-
-/* Only run our customization on the 'edit.php' page in the admin. */
-add_action( 'load-edit.php', 'rqd_edit_quote_load' );
-
-function rqd_edit_quote_load() {
-	add_filter( 'request', 'rqd_sort_authors' );
-}
-
-/* Sorts the movies. */
-function rqd_sort_authors( $vars ) {	
-
-	/* Check if we're viewing the 'movie' post type. */
-	if ( isset( $vars['post_type'] ) && 'quote' == $vars['post_type'] ) {		
-		
-
-		/* Check if 'orderby' is set to 'duration'. */
-		if ( isset( $vars['orderby'] ) && 'quote-author' == $vars['orderby'] ) {
-
-			/* Merge the query vars with our custom variables. */
-			$vars = array_merge(
-				$vars,
-				array(
-					'meta_key' => 'author-box-text',
-					'orderby' => 'meta_value'
-				)
-			);
-		}
-	}
-
-	return $vars;
-}
-
-// Let's add a simple shortcode that can be used to add this to text widgets
-function rqdshortcode () {
-ob_start();
-?>
-
-<div class="rqd-container">
-    	<?php
-		$args=array('post_type'=>'quote', 'orderby'=>'rand', 'posts_per_page'=>'1');
-
-		$randomquote=new WP_Query($args);
-		while ($randomquote->have_posts()) : $randomquote->the_post();
-			$ctd_newtitle = get_the_title();			
-		
-			?><p class="rqd-quote"><?php echo "\"" . $ctd_newtitle . "\"";?></p>
-            
-            <?php $authorname = get_post_meta( get_the_ID(), 'author-box-text', true ); ?>
-            <p class="rqd-author"><?php echo "- " . $authorname . " -";?></p>
-        <?php    
-		endwhile;
-		wp_reset_postdata();
-		?> </div> <?php
-		
-		$output = ob_get_contents();
-		ob_end_clean();
-
-		return $output;
-	}
-add_shortcode( 'quickquote', 'rqdshortcode' );
-add_filter( 'widget_text', 'do_shortcode' );
 
 // Improvements for next IDP....
 // Shortcodes with parameters.
