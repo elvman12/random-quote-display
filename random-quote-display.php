@@ -18,10 +18,6 @@ include ( QQ_PLUGIN_PATH . 'includes/shortcodes.php' );
 include ( QQ_PLUGIN_PATH . 'includes/columns.php' );
 include ( QQ_PLUGIN_PATH . 'includes/metaboxes.php' );
 
-
-
-
-
 // Markup for the author input
 function author_meta_box_markup() {
 	global $post;
@@ -51,26 +47,6 @@ function quote_meta_box_markup() {
     
     <?php
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Now we need to save the entered data to the dbase when someone clicks save or publish
 function rqd_save_quote($post_id, $post, $update)
@@ -109,7 +85,4 @@ function rqd_save_quote($post_id, $post, $update)
 	}			
 }
 add_action("save_post", "rqd_save_quote", 10, 3);
-
-// Improvements for next IDP....
-// Shortcodes with parameters.
 ?>
