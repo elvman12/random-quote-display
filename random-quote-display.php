@@ -2,7 +2,7 @@
 /*
 Plugin Name: Random Quote Display
 Plugin URI:  Not applicable
-Description: Custom Post Type to record quotes and credit names.
+Description: Readily add quotes and authors to your website.
 Version:     1.0
 Author:      Elvis Sherman
 Author URI:  http://wwww.clicktimedesign.com/
