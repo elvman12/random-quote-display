@@ -2,7 +2,7 @@
 
 // Create the custom post type, and custom taxonomy.
 
-function ctd_famous_quotes() {	
+function ctd_famous_quotes() {
 	$labels = array(
 		'name'               => 'Quotes',
 		'singular_name'      => 'Quote',
@@ -19,13 +19,13 @@ function ctd_famous_quotes() {
 		'not_found'          => 'No Quotes found.',
 		'not_found_in_trash' => 'No Quotes found in Trash.'
 	);
-	
-	$args = array( 
+
+	$args = array(
 		'public' => true,
 		'hierarchical' => false,
 		'labels' => $labels,
 		'publicly_queryable' => false,
-		'exclude_from_search' => false,
+		'exclude_from_search' => true,
 		'rewrite' => array( 'slug' => 'quote' ),
 		'menu_position' => 5,
 		'show_ui' => true,
@@ -34,7 +34,7 @@ function ctd_famous_quotes() {
 		'menu_icon' => 'dashicons-format-quote',
 		'supports' => false // This line removes the default metaboxes for Title and Editor fields
 	);
-	
+
 	register_post_type( 'quote', $args );
 }
 add_action( 'init', 'ctd_famous_quotes' );
@@ -58,7 +58,7 @@ function rqd_taxonomy() {
 		'choose_from_most_used'          => 'Choose from the most used Types',
 		'not_found'                      => 'No Types found'
 		);
-	
+
 	register_taxonomy(
 		'Type',
 		'quote',
