@@ -1,11 +1,7 @@
 jQuery(document).ready(function($){
-    //alert("Hello");
 	// Add simple help text to each input box.
 	console.log ('Realize the truth, there is no spoon.');
 	$( '<p style="font-size:14px;">(Give credit where credit is due, enter the name of the person credited with this quote.)</p>' ).insertAfter( '#authorinput' );
-	
+
 	$( '<p style="font-size:14px;">(Enter the quote or phrase of your choice, and there is no need to add quotation marks.)</p>' ).insertAfter( '#quoteinput' );
-	
-	// Larger Help Section to explain shortcode usage.
-	$( '<div id="rqd-instructions"><h2>Getting a Quick Quote to Appear</h2><h3>Within Widgets</h3><p>A random quote can be set to display very easily in a sidebar on your website. &nbsp;Simply select the standard Text Widget that comes with WordPress and apply it any sidebar (widgetized area) of your website, then add the below shortcode to the text widget.<br><br><span class="copythis">[quickquote]</span><br><br></p><h3>Within Template Files</h3><p>You can also get a random quote to display in your WordPress template files, such as footer.php or header.php. &nbsp;Make sure to place the code snippet in the correct place within your template file so it appears correctly.<br><br><span class="copythis">&lt;?php echo do_shortcode("[quickquote]"); ?&gt;</span><br><br></p><h3>Further Assistance</h3><p>If you have questions or need further assistance, a more detailed summary of this plugin can be found <a href="#">here</a>. &nbsp;If you are using this plugin and found it useful, trust me when I tell you a lot of work went into it. &nbsp;Please use the button below and enjoy the tremendous boost to your karma!<br></p><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="NFDT4U9HHG4H4"><input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!"><img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1"></form></div>' ).insertAfter( '#author-meta-box' );	
 });
