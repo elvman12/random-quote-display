@@ -50,7 +50,7 @@ function rqd_taxonomy() {
 		'update_item'                    => 'Update Type',
 		'add_new_item'                   => 'Add New Type',
 		'new_item_name'                  => 'New Type Name',
-		'menu_name'                      => 'Type',
+		'menu_name'                      => 'Quote Types',
 		'view_item'                      => 'View Type',
 		'popular_items'                  => 'Popular Type',
 		'separate_items_with_commas'     => 'Separate Types with commas',

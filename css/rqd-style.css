@@ -1,6 +1,6 @@
 /** WP Admin Styling ***/
 #authorinput input {
-	width: 30%;	
+	width: 30%;
 }
 
 #quoteinput input {
@@ -8,23 +8,24 @@
 }
 
 #rqd-instructions {
-	min-width: 255px;
+	width: 80%;
+	min-width: 220px;
 	overflow: auto;
 	padding: 5px 20px 20px 20px;
 	margin-top: 45px;
 	border: solid 2px #2790bd;
 	border-radius: 10px;
-	background: #eee;	
+	background: #eee;
 }
 
 #rqd-instructions h3 {
-	font-size: 18px;	
+	font-size: 18px;
 }
 
 #rqd-instructions p { font-style: italic; }
 
 h2.hndle {
-	font-size: 18px !important;	
+	font-size: 18px !important;
 }
 
 #rqd-instructions h2 {
@@ -39,7 +40,7 @@ span.copythis {
 	font-weight: bold;
 	font-size: 16px;
 	color: #ff6b43;
-	font-style: normal;	
+	font-style: normal;
 }
 
 /** Front-End Styling for Quote Output **/
