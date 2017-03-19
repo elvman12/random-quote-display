@@ -42,23 +42,3 @@ span.copythis {
 	color: #ff6b43;
 	font-style: normal;
 }
-
-/** Front-End Styling for Quote Output **/
-.rqd-container {
-	color: #000;
-	width: 100%;
-	margin: auto;
-	padding: 8px;
-	text-align: center;
-	font-size: 13px;
-}
-
-.rqd-container p.rqd-quote {
-	font-weight: bold;
-	padding-top: 10px;
-	width: 100%;
-}
-
-.rqd-container p.rqd-author {
-	font-style: italic;
-}
