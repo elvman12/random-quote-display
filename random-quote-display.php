@@ -18,6 +18,7 @@ include ( QQ_PLUGIN_PATH . 'includes/shortcodes.php' );
 include ( QQ_PLUGIN_PATH . 'includes/columns.php' );
 include ( QQ_PLUGIN_PATH . 'includes/metaboxes.php' );
 include ( QQ_PLUGIN_PATH . 'includes/howto.php' );
+include ( QQ_PLUGIN_PATH . 'includes/widget.php' );
 
 // Markup for the author input
 function author_meta_box_markup() {
